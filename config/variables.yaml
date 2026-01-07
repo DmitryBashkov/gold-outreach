@@ -1,0 +1,12 @@
+# Пример файла с переменными
+# Переменные будут подставляться в шаблоны вместо {{variable_name}}
+
+company_name: "ООО Пример"
+contact_person: "Иван Иванов"
+email: "ivan@example.com"
+phone: "+7 (999) 123-45-67"
+position: "Менеджер по продажам"
+date: "2024-01-15"
+product_name: "Продукт X"
+price: "100 000 руб."
+discount: "10%"

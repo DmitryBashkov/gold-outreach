@@ -1,0 +1,48 @@
+# Пример файла с шаблонами писем
+# Переменные указываются в двойных фигурных скобках: {{variable_name}}
+
+template1:
+  subject: "Предложение о сотрудничестве от {{company_name}}"
+  body: |
+    Здравствуйте!
+    
+    Меня зовут {{contact_person}}, я {{position}} компании {{company_name}}.
+    
+    Хотел бы предложить вам наш продукт {{product_name}} по специальной цене {{price}}.
+    Для вас действует скидка {{discount}}.
+    
+    С уважением,
+    {{contact_person}}
+    {{position}}
+    {{company_name}}
+    Телефон: {{phone}}
+    Email: {{email}}
+  recipient: "client@example.com"
+
+template2:
+  subject: "Напоминание о встрече - {{date}}"
+  body: |
+    Добрый день!
+    
+    Напоминаю о нашей встрече, запланированной на {{date}}.
+    
+    Будем обсуждать вопросы по продукту {{product_name}}.
+    
+    До встречи!
+    {{contact_person}}
+  recipient: "partner@example.com"
+
+template3:
+  subject: "Благодарность за сотрудничество"
+  body: |
+    Уважаемый коллега!
+    
+    Хочу выразить благодарность за плодотворное сотрудничество.
+    
+    Надеюсь на дальнейшее развитие наших отношений.
+    
+    С наилучшими пожеланиями,
+    {{contact_person}}
+    {{position}}
+    {{company_name}}
+  recipient: "colleague@example.com"

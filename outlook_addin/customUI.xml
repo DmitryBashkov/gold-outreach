@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="RibbonOnLoad">
+  <ribbon>
+    <tabs>
+      <tab id="GoldOutreachTab" label="Gold Outreach">
+        <group id="CampaignGroup" label="Кампании">
+          <button id="CreateCampaignBtn" 
+                  label="Создать кампанию" 
+                  size="large"
+                  imageMso="CreateMailRule"
+                  onAction="OnCreateCampaign"/>
+          <button id="ManageCampaignsBtn" 
+                  label="Управление кампаниями" 
+                  size="large"
+                  imageMso="ManageRulesAndAlerts"
+                  onAction="OnManageCampaigns"/>
+        </group>
+        <group id="TemplatesGroup" label="Шаблоны">
+          <button id="LoadTemplatesBtn" 
+                  label="Загрузить шаблоны" 
+                  size="large"
+                  imageMso="FileOpen"
+                  onAction="OnLoadTemplates"/>
+        </group>
+        <group id="ToolsGroup" label="Инструменты">
+          <button id="ShowLogsBtn" 
+                  label="Логи" 
+                  size="normal"
+                  imageMso="ShowTimeZones"
+                  onAction="OnShowLogs"/>
+          <button id="CheckRepliesBtn" 
+                  label="Проверить ответы" 
+                  size="normal"
+                  imageMso="CheckNames"
+                  onAction="OnCheckReplies"/>
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>
