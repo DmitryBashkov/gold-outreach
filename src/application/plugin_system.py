@@ -1,4 +1,4 @@
-"""Система плагинов для расширения функциональности."""
+"""Plugin system for extending functionality."""
 import importlib
 import importlib.util
 import inspect
@@ -10,14 +10,14 @@ from src.domain.events import Event
 
 
 class Plugin(ABC):
-    """Базовый класс для всех плагинов."""
+    """Base class for all plugins."""
     
     def __init__(self, event_bus: EventBus):
         """
-        Инициализирует плагин.
+        Initializes the plugin.
         
         Args:
-            event_bus: Event bus для подписки на события
+            event_bus: Event bus for subscribing to events
         """
         self._event_bus = event_bus
         self._name = self.__class__.__name__
@@ -25,51 +25,51 @@ class Plugin(ABC):
     
     @property
     def name(self) -> str:
-        """Возвращает имя плагина."""
+        """Returns the plugin name."""
         return self._name
     
     @property
     def enabled(self) -> bool:
-        """Проверяет, включен ли плагин."""
+        """Checks whether the plugin is enabled."""
         return self._enabled
     
     def enable(self):
-        """Включает плагин."""
+        """Enables the plugin."""
         self._enabled = True
         self.on_enable()
     
     def disable(self):
-        """Выключает плагин."""
+        """Disables the plugin."""
         self._enabled = False
         self.on_disable()
     
     def on_enable(self):
-        """Вызывается при включении плагина. Переопределите для кастомизации."""
+        """Called when the plugin is enabled. Override to customize."""
         pass
     
     def on_disable(self):
-        """Вызывается при выключении плагина. Переопределите для кастомизации."""
+        """Called when the plugin is disabled. Override to customize."""
         pass
     
     @abstractmethod
     def initialize(self):
-        """Инициализирует плагин. Должен быть реализован в подклассах."""
+        """Initializes the plugin. Must be implemented in subclasses."""
         pass
     
     def handle_event(self, event: Event):
-        """Обрабатывает событие. Переопределите для обработки событий."""
+        """Handles an event. Override to process events."""
         pass
 
 
 class PluginManager:
-    """Менеджер для управления плагинами."""
+    """Manager for handling plugins."""
     
     def __init__(self, event_bus: EventBus):
         """
-        Инициализирует менеджер плагинов.
+        Initializes the plugin manager.
         
         Args:
-            event_bus: Event bus для передачи плагинам
+            event_bus: Event bus for passing to plugins
         """
         self._event_bus = event_bus
         self._plugins: Dict[str, Plugin] = {}
@@ -77,49 +77,49 @@ class PluginManager:
     
     def register_plugin(self, plugin: Plugin):
         """
-        Регистрирует плагин.
+        Registers a plugin.
         
         Args:
-            plugin: Экземпляр плагина
+            plugin: Plugin instance
         """
         self._plugins[plugin.name] = plugin
         plugin.initialize()
         
-        # Подписываемся на все события для плагина
+        # Subscribe to all events for the plugin
         self._event_bus.subscribe("*", plugin.handle_event)
     
     def load_plugin_from_module(self, module_path: str, class_name: str) -> Optional[Plugin]:
         """
-        Загружает плагин из модуля Python.
+        Loads a plugin from a Python module.
         
         Args:
-            module_path: Путь к модулю (например, 'plugins.my_plugin')
-            class_name: Имя класса плагина
+            module_path: Path to the module (e.g., 'plugins.my_plugin')
+            class_name: Plugin class name
             
         Returns:
-            Экземпляр плагина или None при ошибке
+            Plugin instance or None on error
         """
         try:
             module = importlib.import_module(module_path)
             plugin_class = getattr(module, class_name)
             
             if not issubclass(plugin_class, Plugin):
-                raise ValueError(f"{class_name} не является подклассом Plugin")
+                raise ValueError(f"{class_name} is not a subclass of Plugin")
             
             plugin = plugin_class(self._event_bus)
             self.register_plugin(plugin)
             return plugin
         
         except Exception as e:
-            print(f"Ошибка загрузки плагина {module_path}.{class_name}: {str(e)}")
+            print(f"Error loading plugin {module_path}.{class_name}: {str(e)}")
             return None
     
     def load_plugins_from_directory(self, directory: Path):
         """
-        Загружает все плагины из директории.
+        Loads all plugins from a directory.
         
         Args:
-            directory: Путь к директории с плагинами
+            directory: Path to the directory with plugins
         """
         if not directory.exists():
             return
@@ -130,13 +130,13 @@ class PluginManager:
             
             module_name = file_path.stem
             try:
-                # Пытаемся найти класс Plugin в файле
+                # Try to find a Plugin class in the file
                 spec = importlib.util.spec_from_file_location(module_name, file_path)
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
                     
-                    # Ищем все классы, наследующиеся от Plugin
+                    # Find all classes inheriting from Plugin
                     for name, obj in inspect.getmembers(module, inspect.isclass):
                         if (issubclass(obj, Plugin) and obj != Plugin and 
                             obj.__module__ == module.__name__):
@@ -145,18 +145,18 @@ class PluginManager:
                             break
             
             except Exception as e:
-                print(f"Ошибка загрузки плагина из {file_path}: {str(e)}")
+                print(f"Error loading plugin from {file_path}: {str(e)}")
     
     def get_plugin(self, name: str) -> Optional[Plugin]:
-        """Возвращает плагин по имени."""
+        """Returns a plugin by name."""
         return self._plugins.get(name)
     
     def get_all_plugins(self) -> List[Plugin]:
-        """Возвращает список всех плагинов."""
+        """Returns a list of all plugins."""
         return list(self._plugins.values())
     
     def unregister_plugin(self, name: str):
-        """Отменяет регистрацию плагина."""
+        """Unregisters a plugin."""
         if name in self._plugins:
             plugin = self._plugins[name]
             plugin.disable()
