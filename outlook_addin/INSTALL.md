@@ -1,96 +1,96 @@
-# Инструкция по установке плагина Outlook
+# Outlook Plugin Installation Guide
 
-## Требования
+## Requirements
 
-- MS Outlook (любая версия с поддержкой Ribbon)
-- Python 3.8+ установлен и доступен из командной строки
-- pywin32 установлен (`pip install pywin32`)
+- MS Outlook (any version that supports Ribbon)
+- Python 3.8+ installed and available from the command line
+- pywin32 installed (`pip install pywin32`)
 
-## Установка
+## Installation
 
-### Шаг 1: Подготовка файлов
+### Step 1: Prepare the Files
 
-1. Скопируйте все файлы из папки `outlook_addin/` в папку с макросами Outlook:
-   - Обычно это: `%APPDATA%\Microsoft\Outlook\`
-   - Или: `C:\Users\<ВашеИмя>\AppData\Roaming\Microsoft\Outlook\`
+1. Copy all files from the `outlook_addin/` folder into the Outlook macros folder:
+   - Typically: `%APPDATA%\Microsoft\Outlook\`
+   - Or: `C:\Users\<YourName>\AppData\Roaming\Microsoft\Outlook\`
 
-2. Файлы для копирования:
+2. Files to copy:
    - `customUI.xml`
    - `RibbonHandler.bas`
    - `ThisAddIn.cls`
 
-### Шаг 2: Настройка путей
+### Step 2: Configure Paths
 
-1. Откройте файл `RibbonHandler.bas` в текстовом редакторе
-2. Найдите строку:
+1. Open `RibbonHandler.bas` in a text editor
+2. Find the line:
    ```vba
    Private Const PYTHON_SCRIPT_PATH As String = "C:\path\to\gold-outreach\outlook_launcher.py"
    ```
-3. Замените путь на реальный путь к файлу `outlook_launcher.py` в вашем проекте
-4. Если Python не в PATH, также измените:
+3. Replace the path with the actual path to `outlook_launcher.py` in your project
+4. If Python is not in PATH, also update:
    ```vba
    pythonPath = "python"
    ```
-   на полный путь, например:
+   to the full path, for example:
    ```vba
    pythonPath = "C:\Python312\python.exe"
    ```
 
-### Шаг 3: Импорт макросов в Outlook
+### Step 3: Import Macros into Outlook
 
-1. Откройте Outlook
-2. Нажмите `Alt + F11` для открытия редактора VBA
-3. В меню выберите: `Файл → Импорт файла...`
-4. Импортируйте файлы:
+1. Open Outlook
+2. Press `Alt + F11` to open the VBA editor
+3. From the menu, select: `File → Import File...`
+4. Import the files:
    - `ThisAddIn.cls`
    - `RibbonHandler.bas`
-5. Сохраните проект (Ctrl+S)
+5. Save the project (Ctrl+S)
 
-### Шаг 4: Настройка безопасности
+### Step 4: Configure Security Settings
 
-1. В Outlook: `Файл → Параметры → Центр управления безопасностью → Параметры центра управления безопасностью`
-2. Перейдите на вкладку "Параметры макросов"
-3. Выберите "Уведомлять о всех макросах" или "Включить все макросы" (не рекомендуется для безопасности)
+1. In Outlook: `File → Options → Trust Center → Trust Center Settings`
+2. Go to the "Macro Settings" tab
+3. Select "Notify me about all macros" or "Enable all macros" (not recommended for security)
 
-### Шаг 5: Настройка Ribbon
+### Step 5: Configure the Ribbon
 
-1. В редакторе VBA создайте новый модуль (если нужно)
-2. Убедитесь, что файл `customUI.xml` находится в правильной папке
-3. Перезапустите Outlook
+1. In the VBA editor, create a new module if needed
+2. Ensure that `customUI.xml` is in the correct folder
+3. Restart Outlook
 
-### Шаг 6: Проверка
+### Step 6: Verify
 
-1. Перезапустите Outlook
-2. Должна появиться новая вкладка "Gold Outreach" в Ribbon панели
-3. Нажмите на кнопки для проверки работы
+1. Restart Outlook
+2. A new "Gold Outreach" tab should appear in the Ribbon panel
+3. Click the buttons to verify that everything works
 
-## Устранение неполадок
+## Troubleshooting
 
-### Вкладка не появляется
+### The tab does not appear
 
-- Убедитесь, что файл `customUI.xml` находится в правильной папке
-- Проверьте, что макросы включены
-- Проверьте логи Outlook на наличие ошибок
+- Ensure that `customUI.xml` is in the correct folder
+- Verify that macros are enabled
+- Check the Outlook logs for errors
 
-### Python скрипт не запускается
+### The Python script does not launch
 
-- Проверьте путь к Python в `RibbonHandler.bas`
-- Убедитесь, что Python доступен из командной строки
-- Проверьте путь к `outlook_launcher.py`
+- Check the path to Python in `RibbonHandler.bas`
+- Ensure that Python is accessible from the command line
+- Check the path to `outlook_launcher.py`
 
-### Ошибки при выполнении
+### Errors during execution
 
-- Убедитесь, что все зависимости установлены (`pip install -r requirements.txt`)
-- Проверьте, что Outlook запущен и доступен
-- Проверьте логи в диалоговом окне "Логи" приложения
+- Ensure all dependencies are installed (`pip install -r requirements.txt`)
+- Verify that Outlook is running and accessible
+- Check the logs in the application's "Logs" dialog window
 
-## Альтернативный способ (без VBA)
+## Alternative Method (without VBA)
 
-Если вы не хотите использовать VBA, можно запускать приложение напрямую:
+If you prefer not to use VBA, you can launch the application directly:
 
 ```bash
 python outlook_launcher.py create_campaign
 python outlook_launcher.py manage_campaigns
 ```
 
-И использовать приложение как отдельную программу, а не как плагин Outlook.
+This lets you use the application as a standalone program rather than as an Outlook plugin.
