@@ -1,4 +1,4 @@
-"""Сервис для управления кампаниями рассылок."""
+"""Service for managing email campaigns."""
 import uuid
 from typing import Dict, List, Optional, Any
 from datetime import datetime
@@ -17,15 +17,15 @@ from src.domain.models import EmailTemplate
 
 
 class CampaignService:
-    """Сервис для управления кампаниями рассылок."""
+    """Service for managing email campaigns."""
     
     def __init__(self, event_bus: EventBus, outlook_client: OutlookClient):
         """
-        Инициализирует сервис кампаний.
+        Initializes the campaign service.
         
         Args:
-            event_bus: Event bus для публикации событий
-            outlook_client: Клиент для работы с Outlook
+            event_bus: Event bus for publishing events
+            outlook_client: Client for working with Outlook
         """
         self._event_bus = event_bus
         self._outlook_client = outlook_client
@@ -39,15 +39,15 @@ class CampaignService:
         recipients_data: List[Dict[str, Any]]
     ) -> str:
         """
-        Создает новую кампанию.
+        Creates a new campaign.
         
         Args:
-            name: Имя кампании
-            template_name: Имя шаблона
-            recipients_data: Список словарей с данными получателей (переменные для каждого письма)
+            name: Campaign name
+            template_name: Template name
+            recipients_data: List of dicts with recipient data (variables for each email)
             
         Returns:
-            ID созданной кампании
+            ID of the created campaign
         """
         campaign_id = str(uuid.uuid4())
         
@@ -60,8 +60,8 @@ class CampaignService:
                 id=email_id,
                 campaign_id=campaign_id,
                 recipient=recipient,
-                subject="",  # Будет заполнено при рендеринге
-                body="",  # Будет заполнено при рендеринге
+                subject="",  # Will be filled during rendering
+                body="",  # Will be filled during rendering
                 status=EmailStatus.DRAFT,
                 variables=recipient_data
             )
@@ -84,23 +84,23 @@ class CampaignService:
         return campaign_id
     
     def set_template(self, template_name: str, template: EmailTemplate):
-        """Устанавливает шаблон для использования в кампаниях."""
+        """Sets a template for use in campaigns."""
         self._templates[template_name] = template
     
     def start_campaign(self, campaign_id: str, send_delay: float = 2.0) -> bool:
         """
-        Запускает кампанию (отправляет письма).
+        Starts a campaign (sends emails).
         
         Args:
-            campaign_id: ID кампании
-            send_delay: Задержка между отправками в секундах (для имитации ручной отправки)
+            campaign_id: Campaign ID
+            send_delay: Delay between sends in seconds (to simulate manual sending)
             
         Returns:
-            True если запуск успешен
+            True if the campaign started successfully
         """
         if campaign_id not in self._campaigns:
             error_event = ErrorEvent(
-                f"Кампания {campaign_id} не найдена",
+                f"Campaign {campaign_id} not found",
                 "campaign_not_found"
             )
             self._event_bus.publish(error_event)
@@ -110,7 +110,7 @@ class CampaignService:
         
         if campaign.template_name not in self._templates:
             error_event = ErrorEvent(
-                f"Шаблон {campaign.template_name} не найден",
+                f"Template {campaign.template_name} not found",
                 "template_not_found"
             )
             self._event_bus.publish(error_event)
@@ -123,24 +123,24 @@ class CampaignService:
         event = CampaignStartedEvent(campaign_id)
         self._event_bus.publish(event)
         
-        # Отправляем письма
+        # Send emails
         for email in campaign.emails:
             try:
-                # Рендерим шаблон с переменными получателя
+                # Render template with recipient variables
                 rendered = template.render(email.variables)
                 email.subject = rendered.subject
                 email.body = rendered.body
-                # Используем recipient из переменных, если не указан в шаблоне
+                # Use recipient from variables if not specified in the template
                 if not email.recipient:
                     email.recipient = email.variables.get('email') or email.variables.get('recipient') or ''
                 if rendered.recipient:
                     email.recipient = rendered.recipient
                 
-                # Проверяем, что получатель указан
+                # Check that recipient is provided
                 if not email.recipient:
-                    raise ValueError(f"Получатель не указан для письма {email.id}")
+                    raise ValueError(f"Recipient not specified for email {email.id}")
                 
-                # Отправляем письмо
+                # Send the email
                 entry_id = self._outlook_client.send_email(
                     subject=email.subject,
                     body=email.body,
@@ -160,7 +160,7 @@ class CampaignService:
             except Exception as e:
                 email.status = EmailStatus.FAILED
                 error_event = ErrorEvent(
-                    f"Ошибка отправки письма {email.id}: {str(e)}",
+                    f"Error sending email {email.id}: {str(e)}",
                     "send_email_error"
                 )
                 self._event_bus.publish(error_event)
@@ -181,13 +181,13 @@ class CampaignService:
     
     def check_campaign_replies(self, campaign_id: str) -> int:
         """
-        Проверяет ответы на письма кампании.
+        Checks for replies to campaign emails.
         
         Args:
-            campaign_id: ID кампании
+            campaign_id: Campaign ID
             
         Returns:
-            Количество новых ответов
+            Number of new replies
         """
         if campaign_id not in self._campaigns:
             return 0
@@ -195,20 +195,20 @@ class CampaignService:
         campaign = self._campaigns[campaign_id]
         new_replies = 0
         
-        # Проверяем ответы для каждого отправленного письма
+        # Check replies for each sent email
         for email in campaign.emails:
             if email.status != EmailStatus.SENT or email.status == EmailStatus.REPLIED:
                 continue
             
             try:
-                # Проверяем ответы с момента отправки
+                # Check for replies since the send date
                 since_date = email.sent_at if email.sent_at else None
                 replies = self._outlook_client.check_replies(
                     conversation_id=email.outlook_conversation_id,
                     since_date=since_date
                 )
                 
-                # Ищем ответ от получателя
+                # Look for a reply from the recipient
                 for reply in replies:
                     if reply['sender'] == email.recipient:
                         email.status = EmailStatus.REPLIED
@@ -222,7 +222,7 @@ class CampaignService:
             
             except Exception as e:
                 error_event = ErrorEvent(
-                    f"Ошибка проверки ответов для письма {email.id}: {str(e)}",
+                    f"Error checking replies for email {email.id}: {str(e)}",
                     "check_replies_error"
                 )
                 self._event_bus.publish(error_event)
@@ -230,22 +230,22 @@ class CampaignService:
         return new_replies
     
     def get_campaign(self, campaign_id: str) -> Optional[Campaign]:
-        """Возвращает кампанию по ID."""
+        """Returns a campaign by ID."""
         return self._campaigns.get(campaign_id)
     
     def get_all_campaigns(self) -> List[Campaign]:
-        """Возвращает список всех кампаний."""
+        """Returns a list of all campaigns."""
         return list(self._campaigns.values())
     
     def pause_campaign(self, campaign_id: str) -> bool:
-        """Приостанавливает кампанию."""
+        """Pauses a campaign."""
         if campaign_id in self._campaigns:
             self._campaigns[campaign_id].status = CampaignStatus.PAUSED
             return True
         return False
     
     def resume_campaign(self, campaign_id: str) -> bool:
-        """Возобновляет кампанию."""
+        """Resumes a campaign."""
         if campaign_id in self._campaigns:
             if self._campaigns[campaign_id].status == CampaignStatus.PAUSED:
                 self._campaigns[campaign_id].status = CampaignStatus.RUNNING
