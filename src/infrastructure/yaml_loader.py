@@ -1,62 +1,62 @@
-"""Модуль для загрузки данных из YAML файлов."""
+"""Module for loading data from YAML files."""
 import yaml
 from typing import Dict, Any
 from pathlib import Path
 
 
 class YAMLLoader:
-    """Класс для загрузки данных из YAML файлов."""
+    """Class for loading data from YAML files."""
     
     @staticmethod
     def load_variables(file_path: str) -> Dict[str, Any]:
         """
-        Загружает переменные из YAML файла.
+        Loads variables from a YAML file.
         
         Args:
-            file_path: Путь к YAML файлу с переменными
+            file_path: Path to the YAML file with variables
             
         Returns:
-            Словарь с переменными
+            Dictionary with variables
             
         Raises:
-            FileNotFoundError: Если файл не найден
-            yaml.YAMLError: Если файл содержит невалидный YAML
+            FileNotFoundError: If the file is not found
+            yaml.YAMLError: If the file contains invalid YAML
         """
         path = Path(file_path)
         if not path.exists():
-            raise FileNotFoundError(f"Файл не найден: {file_path}")
+            raise FileNotFoundError(f"File not found: {file_path}")
         
         with open(path, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
         
         if not isinstance(data, dict):
-            raise ValueError(f"YAML файл должен содержать словарь, получен: {type(data)}")
+            raise ValueError(f"YAML file must contain a dictionary, got: {type(data)}")
         
         return data
     
     @staticmethod
     def load_templates(file_path: str) -> Dict[str, Dict[str, str]]:
         """
-        Загружает шаблоны писем из YAML файла.
+        Loads email templates from a YAML file.
         
         Args:
-            file_path: Путь к YAML файлу с шаблонами
+            file_path: Path to the YAML file with templates
             
         Returns:
-            Словарь шаблонов, где ключ - имя шаблона, значение - словарь с subject, body, recipient
+            Dictionary of templates, where key is the template name and value is a dict with subject, body, recipient
             
         Raises:
-            FileNotFoundError: Если файл не найден
-            yaml.YAMLError: Если файл содержит невалидный YAML
+            FileNotFoundError: If the file is not found
+            yaml.YAMLError: If the file contains invalid YAML
         """
         path = Path(file_path)
         if not path.exists():
-            raise FileNotFoundError(f"Файл не найден: {file_path}")
+            raise FileNotFoundError(f"File not found: {file_path}")
         
         with open(path, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
         
         if not isinstance(data, dict):
-            raise ValueError(f"YAML файл должен содержать словарь, получен: {type(data)}")
+            raise ValueError(f"YAML file must contain a dictionary, got: {type(data)}")
         
         return data
