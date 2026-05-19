@@ -1,28 +1,28 @@
-"""Пример плагина для системы."""
+"""Example plugin for the plugin system."""
 from src.application.plugin_system import Plugin
 from src.domain.events import Event, EmailSentEvent
 
 
 class ExamplePlugin(Plugin):
-    """Пример плагина, который логирует отправленные письма."""
+    """Example plugin that logs sent emails."""
     
     def initialize(self):
-        """Инициализирует плагин."""
-        print(f"Плагин {self._name} инициализирован")
+        """Initializes the plugin."""
+        print(f"Plugin {self._name} initialized")
     
     def handle_event(self, event: Event):
-        """Обрабатывает события."""
+        """Handles events."""
         if not self._enabled:
             return
         
-        # Обрабатываем только события отправки писем
+        # Only handle email sent events
         if isinstance(event, EmailSentEvent):
-            print(f"[ExamplePlugin] Письмо отправлено: {event.recipient}")
+            print(f"[ExamplePlugin] Email sent to: {event.recipient}")
     
     def on_enable(self):
-        """Вызывается при включении плагина."""
-        print(f"Плагин {self._name} включен")
+        """Called when the plugin is enabled."""
+        print(f"Plugin {self._name} enabled")
     
     def on_disable(self):
-        """Вызывается при выключении плагина."""
-        print(f"Плагин {self._name} выключен")
+        """Called when the plugin is disabled."""
+        print(f"Plugin {self._name} disabled")
