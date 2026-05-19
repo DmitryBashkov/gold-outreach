@@ -1,9 +1,9 @@
-"""Лаунчер для запуска приложения из Outlook плагина."""
+"""Launcher for starting the application from the Outlook plugin."""
 import sys
 import os
 from pathlib import Path
 
-# Добавляем путь к проекту в sys.path
+# Add project path to sys.path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
@@ -16,52 +16,52 @@ from src.presentation.main_window import MainWindow
 
 
 def create_campaign():
-    """Создает кампанию."""
+    """Creates a campaign."""
     run_app(action="create_campaign")
 
 
 def manage_campaigns():
-    """Управляет кампаниями."""
+    """Manages campaigns."""
     run_app(action="manage_campaigns")
 
 
 def load_templates():
-    """Загружает шаблоны."""
+    """Loads templates."""
     run_app(action="load_templates")
 
 
 def show_logs():
-    """Показывает логи."""
+    """Shows logs."""
     run_app(action="show_logs")
 
 
 def check_replies():
-    """Проверяет ответы."""
+    """Checks replies."""
     run_app(action="check_replies")
 
 
 def run_app(action: str = None):
-    """Запускает приложение с указанным действием."""
-    # Создаем event bus
+    """Starts the application with the specified action."""
+    # Create event bus
     event_bus = EventBus()
     
-    # Создаем клиент Outlook и подключаемся
+    # Create Outlook client and connect
     outlook_client = OutlookClient()
     try:
         outlook_client.connect()
     except Exception as e:
-        print(f"Ошибка подключения к Outlook: {e}")
+        print(f"Error connecting to Outlook: {e}")
         return
     
-    # Создаем сервисы
+    # Create services
     email_service = EmailService(event_bus)
     campaign_service = CampaignService(event_bus, outlook_client)
     
-    # Создаем GUI
+    # Create GUI
     root = tk.Tk()
     app = MainWindow(root, event_bus, email_service, campaign_service)
     
-    # Выполняем действие, если указано
+    # Execute the action if specified
     if action == "create_campaign":
         app._show_create_campaign()
     elif action == "manage_campaigns":
@@ -69,10 +69,10 @@ def run_app(action: str = None):
     elif action == "show_logs":
         app._show_logs()
     elif action == "check_replies":
-        # Можно добавить автоматическую проверку всех кампаний
+        # Can add automatic reply checking for all campaigns
         pass
     
-    # Запускаем приложение
+    # Start the application
     try:
         root.mainloop()
     finally:
