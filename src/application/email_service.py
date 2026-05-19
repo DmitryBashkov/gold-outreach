@@ -1,4 +1,4 @@
-"""Сервис для работы с письмами."""
+"""Service for working with emails."""
 from typing import Dict, Any, List, Optional
 from src.domain.models import EmailTemplate
 from src.domain.events import (
@@ -17,14 +17,14 @@ from src.domain.models import EmailTemplate
 
 
 class EmailService:
-    """Сервис для генерации и сохранения писем."""
+    """Service for generating and saving emails."""
     
     def __init__(self, event_bus: EventBus):
         """
-        Инициализирует сервис.
+        Initializes the service.
         
         Args:
-            event_bus: Event bus для публикации событий
+            event_bus: Event bus for publishing events
         """
         self._event_bus = event_bus
         self._yaml_loader = YAMLLoader()
@@ -37,13 +37,13 @@ class EmailService:
     
     def load_variables(self, file_path: str) -> bool:
         """
-        Загружает переменные из YAML файла.
+        Loads variables from a YAML file.
         
         Args:
-            file_path: Путь к YAML файлу с переменными
+            file_path: Path to the YAML file with variables
             
         Returns:
-            True если загрузка успешна, False в противном случае
+            True if loading was successful, False otherwise
         """
         try:
             self._variables = self._yaml_loader.load_variables(file_path)
@@ -52,7 +52,7 @@ class EmailService:
             return True
         except Exception as e:
             error_event = ErrorEvent(
-                error_message=f"Ошибка загрузки переменных: {str(e)}",
+                error_message=f"Error loading variables: {str(e)}",
                 error_type="load_variables"
             )
             self._event_bus.publish(error_event)
@@ -60,14 +60,14 @@ class EmailService:
     
     def load_templates(self, file_path: str, file_type: str = "yaml") -> bool:
         """
-        Загружает шаблоны из файла (YAML или TOML).
+        Loads templates from a file (YAML or TOML).
         
         Args:
-            file_path: Путь к файлу с шаблонами
-            file_type: Тип файла ("yaml" или "toml")
+            file_path: Path to the templates file
+            file_type: File type ("yaml" or "toml")
             
         Returns:
-            True если загрузка успешна, False в противном случае
+            True if loading was successful, False otherwise
         """
         try:
             if file_type.lower() == "toml":
@@ -75,7 +75,7 @@ class EmailService:
             else:
                 self._templates = self._yaml_loader.load_templates(file_path)
             
-            # Конвертируем в EmailTemplate объекты
+            # Convert to EmailTemplate objects
             self._email_templates = {}
             for name, data in self._templates.items():
                 self._email_templates[name] = EmailTemplate(
@@ -90,7 +90,7 @@ class EmailService:
             return True
         except Exception as e:
             error_event = ErrorEvent(
-                error_message=f"Ошибка загрузки шаблонов: {str(e)}",
+                error_message=f"Error loading templates: {str(e)}",
                 error_type="load_templates"
             )
             self._event_bus.publish(error_event)
@@ -98,20 +98,20 @@ class EmailService:
     
     def load_variables_from_csv(self, file_path: str) -> List[Dict[str, Any]]:
         """
-        Загружает переменные из CSV файла.
+        Loads variables from a CSV file.
         
         Args:
-            file_path: Путь к CSV файлу
+            file_path: Path to the CSV file
             
         Returns:
-            Список словарей с переменными (каждая строка - один набор переменных)
+            List of dicts with variables (each row is one set of variables)
         """
         try:
             variables_list = self._csv_loader.load_variables(file_path)
             return variables_list
         except Exception as e:
             error_event = ErrorEvent(
-                error_message=f"Ошибка загрузки переменных из CSV: {str(e)}",
+                error_message=f"Error loading variables from CSV: {str(e)}",
                 error_type="load_csv"
             )
             self._event_bus.publish(error_event)
@@ -119,17 +119,17 @@ class EmailService:
     
     def connect_outlook(self) -> bool:
         """
-        Подключается к MS Outlook.
+        Connects to MS Outlook.
         
         Returns:
-            True если подключение успешно, False в противном случае
+            True if connection was successful, False otherwise
         """
         try:
             success = self._outlook_client.connect()
             return success
         except Exception as e:
             error_event = ErrorEvent(
-                error_message=f"Ошибка подключения к Outlook: {str(e)}",
+                error_message=f"Error connecting to Outlook: {str(e)}",
                 error_type="connect_outlook"
             )
             self._event_bus.publish(error_event)
@@ -137,16 +137,16 @@ class EmailService:
     
     def generate_and_save_emails(self) -> Dict[str, bool]:
         """
-        Генерирует и сохраняет все письма на основе загруженных шаблонов и переменных.
+        Generates and saves all emails based on loaded templates and variables.
         
         Returns:
-            Словарь с результатами: ключ - имя шаблона, значение - True/False
+            Dict with results: key is template name, value is True/False
         """
         results = {}
         
         if not self._templates:
             error_event = ErrorEvent(
-                error_message="Шаблоны не загружены",
+                error_message="Templates not loaded",
                 error_type="generate_emails"
             )
             self._event_bus.publish(error_event)
@@ -154,7 +154,7 @@ class EmailService:
         
         if not self._variables:
             error_event = ErrorEvent(
-                error_message="Переменные не загружены",
+                error_message="Variables not loaded",
                 error_type="generate_emails"
             )
             self._event_bus.publish(error_event)
@@ -166,7 +166,7 @@ class EmailService:
         
         for template_name, template_data in self._templates.items():
             try:
-                # Создаем объект шаблона
+                # Create template object
                 email_template = EmailTemplate(
                     name=template_name,
                     subject=template_data.get('subject', ''),
@@ -174,10 +174,10 @@ class EmailService:
                     recipient=template_data.get('recipient')
                 )
                 
-                # Рендерим шаблон с переменными
+                # Render template with variables
                 rendered_template = email_template.render(self._variables)
                 
-                # Публикуем событие генерации письма
+                # Publish email generation event
                 generated_event = EmailGeneratedEvent(
                     template_name=template_name,
                     subject=rendered_template.subject,
@@ -186,7 +186,7 @@ class EmailService:
                 )
                 self._event_bus.publish(generated_event)
                 
-                # Сохраняем в Outlook
+                # Save to Outlook
                 success = self._outlook_client.create_draft(
                     subject=rendered_template.subject,
                     body=rendered_template.body,
@@ -195,7 +195,7 @@ class EmailService:
                 
                 results[template_name] = success
                 
-                # Публикуем событие сохранения
+                # Publish save event
                 saved_event = EmailSavedEvent(
                     template_name=template_name,
                     success=success
@@ -205,7 +205,7 @@ class EmailService:
             except Exception as e:
                 results[template_name] = False
                 error_event = ErrorEvent(
-                    error_message=f"Ошибка при обработке шаблона {template_name}: {str(e)}",
+                    error_message=f"Error processing template {template_name}: {str(e)}",
                     error_type="generate_email"
                 )
                 self._event_bus.publish(error_event)
@@ -220,17 +220,17 @@ class EmailService:
         return results
     
     def get_variables(self) -> Dict[str, Any]:
-        """Возвращает загруженные переменные."""
+        """Returns the loaded variables."""
         return self._variables.copy()
     
     def get_templates(self) -> Dict[str, Dict[str, str]]:
-        """Возвращает загруженные шаблоны."""
+        """Returns the loaded templates."""
         return self._templates.copy()
     
     def get_email_templates(self) -> Dict[str, EmailTemplate]:
-        """Возвращает загруженные шаблоны как EmailTemplate объекты."""
+        """Returns the loaded templates as EmailTemplate objects."""
         return self._email_templates.copy()
     
     def disconnect_outlook(self):
-        """Отключается от Outlook."""
+        """Disconnects from Outlook."""
         self._outlook_client.disconnect()
