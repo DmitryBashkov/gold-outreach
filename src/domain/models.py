@@ -1,4 +1,4 @@
-"""Доменные модели."""
+"""Domain models."""
 from dataclasses import dataclass, field
 from typing import Dict, Any, Optional, List
 from datetime import datetime
@@ -6,7 +6,7 @@ from enum import Enum
 
 
 class EmailStatus(Enum):
-    """Статус письма."""
+    """Email status."""
     DRAFT = "draft"
     SENT = "sent"
     REPLIED = "replied"
@@ -14,7 +14,7 @@ class EmailStatus(Enum):
 
 
 class CampaignStatus(Enum):
-    """Статус кампании."""
+    """Campaign status."""
     DRAFT = "draft"
     RUNNING = "running"
     PAUSED = "paused"
@@ -24,14 +24,14 @@ class CampaignStatus(Enum):
 
 @dataclass
 class EmailTemplate:
-    """Модель шаблона письма."""
+    """Email template model."""
     name: str
     subject: str
     body: str
     recipient: Optional[str] = None
     
     def render(self, variables: Dict[str, Any]) -> 'EmailTemplate':
-        """Подставляет переменные в шаблон."""
+        """Substitutes variables into the template."""
         rendered_subject = self._render_text(self.subject, variables)
         rendered_body = self._render_text(self.body, variables)
         rendered_recipient = self._render_text(self.recipient, variables) if self.recipient else None
@@ -45,7 +45,7 @@ class EmailTemplate:
     
     @staticmethod
     def _render_text(text: str, variables: Dict[str, Any]) -> str:
-        """Подставляет переменные в текст."""
+        """Substitutes variables into text."""
         if not text:
             return text
         
@@ -59,7 +59,7 @@ class EmailTemplate:
 
 @dataclass
 class Email:
-    """Модель письма в рассылке."""
+    """Email model in a campaign."""
     id: str
     campaign_id: str
     recipient: str
@@ -75,7 +75,7 @@ class Email:
 
 @dataclass
 class Campaign:
-    """Модель кампании рассылки."""
+    """Campaign model."""
     id: str
     name: str
     template_name: str
@@ -90,14 +90,14 @@ class Campaign:
     
     @property
     def conversion_rate(self) -> float:
-        """Вычисляет конверсию (процент ответов)."""
+        """Calculates the conversion rate (percentage of replies)."""
         if self.sent_emails == 0:
             return 0.0
         return (self.replied_emails / self.sent_emails) * 100
     
     @property
     def completion_rate(self) -> float:
-        """Вычисляет процент выполнения."""
+        """Calculates the completion percentage."""
         if self.total_emails == 0:
             return 0.0
         return (self.sent_emails / self.total_emails) * 100
