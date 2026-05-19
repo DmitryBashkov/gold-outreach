@@ -1,4 +1,4 @@
-"""Главное окно приложения."""
+"""Main application window."""
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, scrolledtext
 from pathlib import Path
@@ -22,18 +22,18 @@ from src.domain.events import (
 
 
 class MainWindow:
-    """Главное окно приложения с GUI на tkinter."""
+    """Main application window with tkinter GUI."""
     
     def __init__(self, root: tk.Tk, event_bus: EventBus, email_service: EmailService,
                  campaign_service: Optional[CampaignService] = None):
         """
-        Инициализирует главное окно.
+        Initializes the main window.
         
         Args:
-            root: Корневой виджет tkinter
-            event_bus: Event bus для подписки на события
-            email_service: Сервис для работы с письмами
-            campaign_service: Сервис для работы с кампаниями (опционально)
+            root: Root tkinter widget
+            event_bus: Event bus for subscribing to events
+            email_service: Service for working with emails
+            campaign_service: Service for working with campaigns (optional)
         """
         self._root = root
         self._event_bus = event_bus
@@ -43,7 +43,7 @@ class MainWindow:
         self._variables_file_path: Optional[str] = None
         self._templates_file_path: Optional[str] = None
         
-        # Инициализируем диалоги
+        # Initialize dialogs
         self._campaign_dialog = CampaignDialog(root, campaign_service, email_service) if campaign_service else None
         self._log_dialog = LogDialog(root)
         
@@ -51,12 +51,12 @@ class MainWindow:
         self._subscribe_to_events()
     
     def _setup_ui(self):
-        """Настраивает интерфейс пользователя."""
-        self._root.title("Генератор писем Outlook")
+        """Sets up the user interface."""
+        self._root.title("Outlook Email Generator")
         self._root.geometry("800x600")
         self._root.resizable(True, True)
         
-        # Главный контейнер
+        # Main container
         main_frame = ttk.Frame(self._root, padding="10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
@@ -64,33 +64,33 @@ class MainWindow:
         self._root.rowconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=1)
         
-        # Секция выбора файлов
-        files_frame = ttk.LabelFrame(main_frame, text="Файлы", padding="10")
+        # File selection section
+        files_frame = ttk.LabelFrame(main_frame, text="Files", padding="10")
         files_frame.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
         files_frame.columnconfigure(1, weight=1)
         
-        # Файл с переменными
-        ttk.Label(files_frame, text="Файл переменных:").grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+        # Variables file
+        ttk.Label(files_frame, text="Variables file:").grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
         self._variables_path_var = tk.StringVar()
         ttk.Entry(files_frame, textvariable=self._variables_path_var, state='readonly').grid(
             row=0, column=1, sticky=(tk.W, tk.E), padx=5, pady=5
         )
-        ttk.Button(files_frame, text="Выбрать...", command=self._select_variables_file).grid(
+        ttk.Button(files_frame, text="Browse...", command=self._select_variables_file).grid(
             row=0, column=2, padx=5, pady=5
         )
         
-        # Файл с шаблонами
-        ttk.Label(files_frame, text="Файл шаблонов:").grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
+        # Templates file
+        ttk.Label(files_frame, text="Templates file:").grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
         self._templates_path_var = tk.StringVar()
         ttk.Entry(files_frame, textvariable=self._templates_path_var, state='readonly').grid(
             row=1, column=1, sticky=(tk.W, tk.E), padx=5, pady=5
         )
-        ttk.Button(files_frame, text="Выбрать...", command=self._select_templates_file).grid(
+        ttk.Button(files_frame, text="Browse...", command=self._select_templates_file).grid(
             row=1, column=2, padx=5, pady=5
         )
         
-        # Секция информации
-        info_frame = ttk.LabelFrame(main_frame, text="Информация", padding="10")
+        # Information section
+        info_frame = ttk.LabelFrame(main_frame, text="Information", padding="10")
         info_frame.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S), pady=5)
         info_frame.columnconfigure(0, weight=1)
         info_frame.rowconfigure(0, weight=1)
@@ -100,68 +100,68 @@ class MainWindow:
         self._info_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         self._info_text.config(state=tk.DISABLED)
         
-        # Секция кнопок
+        # Buttons section
         buttons_frame = ttk.Frame(main_frame, padding="10")
         buttons_frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
         
         ttk.Button(
             buttons_frame,
-            text="Загрузить файлы",
+            text="Load files",
             command=self._load_files
         ).pack(side=tk.LEFT, padx=5)
         
         ttk.Button(
             buttons_frame,
-            text="Подключиться к Outlook",
+            text="Connect to Outlook",
             command=self._connect_outlook
         ).pack(side=tk.LEFT, padx=5)
         
         ttk.Button(
             buttons_frame,
-            text="Создать письма",
+            text="Generate emails",
             command=self._generate_emails
         ).pack(side=tk.LEFT, padx=5)
         
         ttk.Button(
             buttons_frame,
-            text="Очистить",
+            text="Clear",
             command=self._clear_info
         ).pack(side=tk.LEFT, padx=5)
         
-        # Кнопки для кампаний (если доступны)
+        # Campaign buttons (if available)
         if self._campaign_service:
             ttk.Button(
                 buttons_frame,
-                text="Создать кампанию",
+                text="Create campaign",
                 command=self._show_create_campaign
             ).pack(side=tk.LEFT, padx=5)
             
             ttk.Button(
                 buttons_frame,
-                text="Управление кампаниями",
+                text="Manage campaigns",
                 command=self._show_campaigns_list
             ).pack(side=tk.LEFT, padx=5)
         
         ttk.Button(
             buttons_frame,
-            text="Логи",
+            text="Logs",
             command=self._show_logs
         ).pack(side=tk.LEFT, padx=5)
         
-        # Статусная строка
-        self._status_var = tk.StringVar(value="Готов к работе")
+        # Status bar
+        self._status_var = tk.StringVar(value="Ready")
         status_label = ttk.Label(main_frame, textvariable=self._status_var, relief=tk.SUNKEN)
         status_label.grid(row=3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
     
     def _subscribe_to_events(self):
-        """Подписывается на события."""
+        """Subscribes to events."""
         self._event_bus.subscribe("variables_loaded", self._on_variables_loaded)
         self._event_bus.subscribe("templates_loaded", self._on_templates_loaded)
         self._event_bus.subscribe("email_generated", self._on_email_generated)
         self._event_bus.subscribe("email_saved", self._on_email_saved)
         self._event_bus.subscribe("error", self._on_error)
         
-        # Подписки на события кампаний
+        # Subscribe to campaign events
         if self._campaign_service:
             self._event_bus.subscribe("campaign_created", self._on_campaign_created)
             self._event_bus.subscribe("campaign_started", self._on_campaign_started)
@@ -169,167 +169,167 @@ class MainWindow:
             self._event_bus.subscribe("email_replied", self._on_email_replied)
     
     def _select_variables_file(self):
-        """Выбирает файл с переменными."""
+        """Selects the variables file."""
         file_path = filedialog.askopenfilename(
-            title="Выберите файл с переменными",
-            filetypes=[("YAML файлы", "*.yaml *.yml"), ("Все файлы", "*.*")]
+            title="Select variables file",
+            filetypes=[("YAML files", "*.yaml *.yml"), ("All files", "*.*")]
         )
         if file_path:
             self._variables_file_path = file_path
             self._variables_path_var.set(file_path)
     
     def _select_templates_file(self):
-        """Выбирает файл с шаблонами."""
+        """Selects the templates file."""
         file_path = filedialog.askopenfilename(
-            title="Выберите файл с шаблонами",
-            filetypes=[("YAML файлы", "*.yaml *.yml"), ("Все файлы", "*.*")]
+            title="Select templates file",
+            filetypes=[("YAML files", "*.yaml *.yml"), ("All files", "*.*")]
         )
         if file_path:
             self._templates_file_path = file_path
             self._templates_path_var.set(file_path)
     
     def _load_files(self):
-        """Загружает выбранные файлы."""
+        """Loads the selected files."""
         if not self._variables_file_path:
-            messagebox.showwarning("Предупреждение", "Выберите файл с переменными")
+            messagebox.showwarning("Warning", "Select a variables file")
             return
         
         if not self._templates_file_path:
-            messagebox.showwarning("Предупреждение", "Выберите файл с шаблонами")
+            messagebox.showwarning("Warning", "Select a templates file")
             return
         
-        self._add_info("Загрузка файлов...")
-        self._status_var.set("Загрузка файлов...")
+        self._add_info("Loading files...")
+        self._status_var.set("Loading files...")
         
-        # Загружаем переменные
+        # Load variables
         if self._email_service.load_variables(self._variables_file_path):
-            self._add_info("✓ Файл переменных загружен успешно")
+            self._add_info("✓ Variables file loaded successfully")
         else:
-            self._add_info("✗ Ошибка загрузки файла переменных")
+            self._add_info("✗ Error loading variables file")
         
-        # Загружаем шаблоны
+        # Load templates
         if self._email_service.load_templates(self._templates_file_path):
-            self._add_info("✓ Файл шаблонов загружен успешно")
+            self._add_info("✓ Templates file loaded successfully")
         else:
-            self._add_info("✗ Ошибка загрузки файла шаблонов")
+            self._add_info("✗ Error loading templates file")
         
-        self._status_var.set("Файлы загружены")
+        self._status_var.set("Files loaded")
     
     def _connect_outlook(self):
-        """Подключается к Outlook."""
-        self._add_info("Подключение к Outlook...")
-        self._status_var.set("Подключение к Outlook...")
+        """Connects to Outlook."""
+        self._add_info("Connecting to Outlook...")
+        self._status_var.set("Connecting to Outlook...")
         
         if self._email_service.connect_outlook():
-            self._add_info("✓ Подключение к Outlook успешно")
-            self._status_var.set("Подключено к Outlook")
+            self._add_info("✓ Connected to Outlook successfully")
+            self._status_var.set("Connected to Outlook")
         else:
-            self._add_info("✗ Ошибка подключения к Outlook")
-            self._status_var.set("Ошибка подключения")
+            self._add_info("✗ Error connecting to Outlook")
+            self._status_var.set("Connection error")
     
     def _generate_emails(self):
-        """Генерирует и сохраняет письма."""
-        self._add_info("Начало генерации писем...")
-        self._status_var.set("Генерация писем...")
+        """Generates and saves emails."""
+        self._add_info("Starting email generation...")
+        self._status_var.set("Generating emails...")
         
         results = self._email_service.generate_and_save_emails()
         
         success_count = sum(1 for success in results.values() if success)
         total_count = len(results)
         
-        self._add_info(f"\nРезультаты: {success_count}/{total_count} писем создано успешно")
-        self._status_var.set(f"Создано {success_count}/{total_count} писем")
+        self._add_info(f"\nResults: {success_count}/{total_count} emails created successfully")
+        self._status_var.set(f"Created {success_count}/{total_count} emails")
         
         if success_count == total_count and total_count > 0:
-            messagebox.showinfo("Успех", f"Все письма ({total_count}) успешно созданы в черновиках Outlook")
+            messagebox.showinfo("Success", f"All emails ({total_count}) successfully saved to Outlook drafts")
         elif success_count > 0:
             messagebox.showwarning(
-                "Частичный успех",
-                f"Создано {success_count} из {total_count} писем. Проверьте лог для деталей."
+                "Partial success",
+                f"Created {success_count} of {total_count} emails. Check the log for details."
             )
         elif total_count > 0:
-            messagebox.showerror("Ошибка", "Не удалось создать ни одного письма. Проверьте лог.")
+            messagebox.showerror("Error", "Failed to create any emails. Check the log.")
     
     def _clear_info(self):
-        """Очищает информационное поле."""
+        """Clears the information panel."""
         self._info_text.config(state=tk.NORMAL)
         self._info_text.delete(1.0, tk.END)
         self._info_text.config(state=tk.DISABLED)
-        self._status_var.set("Готов к работе")
+        self._status_var.set("Ready")
     
     def _add_info(self, message: str):
-        """Добавляет сообщение в информационное поле."""
+        """Adds a message to the information panel."""
         self._info_text.config(state=tk.NORMAL)
         self._info_text.insert(tk.END, message + "\n")
         self._info_text.see(tk.END)
         self._info_text.config(state=tk.DISABLED)
     
     def _on_variables_loaded(self, event: VariablesLoadedEvent):
-        """Обработчик события загрузки переменных."""
+        """Handler for the variables loaded event."""
         var_count = len(event.variables)
-        self._add_info(f"Загружено переменных: {var_count}")
+        self._add_info(f"Variables loaded: {var_count}")
     
     def _on_templates_loaded(self, event: TemplatesLoadedEvent):
-        """Обработчик события загрузки шаблонов."""
+        """Handler for the templates loaded event."""
         template_count = len(event.templates)
-        self._add_info(f"Загружено шаблонов: {template_count}")
+        self._add_info(f"Templates loaded: {template_count}")
         for template_name in event.templates.keys():
             self._add_info(f"  - {template_name}")
     
     def _on_email_generated(self, event: EmailGeneratedEvent):
-        """Обработчик события генерации письма."""
-        self._add_info(f"Сгенерировано письмо: {event.template_name}")
-        self._add_info(f"  Тема: {event.subject}")
+        """Handler for the email generated event."""
+        self._add_info(f"Email generated: {event.template_name}")
+        self._add_info(f"  Subject: {event.subject}")
     
     def _on_email_saved(self, event: EmailSavedEvent):
-        """Обработчик события сохранения письма."""
+        """Handler for the email saved event."""
         if event.success:
-            self._add_info(f"✓ Письмо '{event.template_name}' сохранено в черновики")
+            self._add_info(f"✓ Email '{event.template_name}' saved to drafts")
         else:
-            self._add_info(f"✗ Ошибка сохранения письма '{event.template_name}'")
+            self._add_info(f"✗ Error saving email '{event.template_name}'")
             if event.error_message:
-                self._add_info(f"  Ошибка: {event.error_message}")
+                self._add_info(f"  Error: {event.error_message}")
     
     def _on_error(self, event: ErrorEvent):
-        """Обработчик события ошибки."""
-        message = f"✗ ОШИБКА [{event.error_type}]: {event.error_message}"
+        """Handler for the error event."""
+        message = f"✗ ERROR [{event.error_type}]: {event.error_message}"
         self._add_info(message)
         self._log_dialog.add_log(message, "ERROR")
     
     def _show_create_campaign(self):
-        """Показывает диалог создания кампании."""
+        """Shows the campaign creation dialog."""
         if self._campaign_dialog:
             self._campaign_dialog.show_create_campaign()
     
     def _show_campaigns_list(self):
-        """Показывает список кампаний."""
+        """Shows the campaigns list."""
         if self._campaign_dialog:
             self._campaign_dialog.show_campaigns_list()
     
     def _show_logs(self):
-        """Показывает диалог логов."""
+        """Shows the logs dialog."""
         self._log_dialog.show()
     
     def _on_campaign_created(self, event: CampaignCreatedEvent):
-        """Обработчик события создания кампании."""
-        message = f"Создана кампания: {event.campaign_name} (ID: {event.campaign_id})"
+        """Handler for the campaign created event."""
+        message = f"Campaign created: {event.campaign_name} (ID: {event.campaign_id})"
         self._add_info(message)
         self._log_dialog.add_log(message, "INFO")
     
     def _on_campaign_started(self, event: CampaignStartedEvent):
-        """Обработчик события запуска кампании."""
-        message = f"Запущена кампания: {event.campaign_id}"
+        """Handler for the campaign started event."""
+        message = f"Campaign started: {event.campaign_id}"
         self._add_info(message)
         self._log_dialog.add_log(message, "INFO")
     
     def _on_email_sent(self, event: EmailSentEvent):
-        """Обработчик события отправки письма."""
-        message = f"Отправлено письмо: {event.recipient} (Кампания: {event.campaign_id})"
+        """Handler for the email sent event."""
+        message = f"Email sent to: {event.recipient} (Campaign: {event.campaign_id})"
         self._add_info(message)
         self._log_dialog.add_log(message, "INFO")
     
     def _on_email_replied(self, event: EmailRepliedEvent):
-        """Обработчик события ответа на письмо."""
-        message = f"Получен ответ от: {event.recipient} (Кампания: {event.campaign_id})"
+        """Handler for the email replied event."""
+        message = f"Reply received from: {event.recipient} (Campaign: {event.campaign_id})"
         self._add_info(message)
         self._log_dialog.add_log(message, "INFO")
