@@ -1,4 +1,4 @@
-"""Модуль для работы с MS Outlook."""
+"""Module for working with MS Outlook."""
 import sys
 import time
 from typing import Optional, List, Dict, Any
@@ -7,10 +7,10 @@ from datetime import datetime
 
 
 class OutlookClient:
-    """Клиент для работы с MS Outlook через COM интерфейс."""
+    """Client for working with MS Outlook via COM interface."""
     
     def __init__(self):
-        """Инициализирует клиент Outlook."""
+        """Initializes the Outlook client."""
         self._outlook = None
         self._namespace = None
         self._drafts_folder = None
@@ -20,14 +20,14 @@ class OutlookClient:
     
     def connect(self) -> bool:
         """
-        Подключается к MS Outlook.
+        Connects to MS Outlook.
         
         Returns:
-            True если подключение успешно, False в противном случае
+            True if connection was successful, False otherwise
         """
         try:
             if sys.platform != 'win32':
-                raise RuntimeError("MS Outlook доступен только на Windows")
+                raise RuntimeError("MS Outlook is only available on Windows")
             
             import win32com.client
             self._outlook = win32com.client.Dispatch("Outlook.Application")
@@ -39,15 +39,15 @@ class OutlookClient:
             return True
         except ImportError:
             raise ImportError(
-                "Для работы с Outlook необходимо установить pywin32: "
+                "To work with Outlook you must install pywin32: "
                 "pip install pywin32"
             )
         except Exception as e:
             self._is_connected = False
-            raise RuntimeError(f"Ошибка подключения к Outlook: {str(e)}")
+            raise RuntimeError(f"Error connecting to Outlook: {str(e)}")
     
     def is_connected(self) -> bool:
-        """Проверяет, подключен ли клиент к Outlook."""
+        """Checks whether the client is connected to Outlook."""
         return self._is_connected
     
     def create_draft(
@@ -58,22 +58,22 @@ class OutlookClient:
         html_body: bool = False
     ) -> Optional[str]:
         """
-        Создает черновик письма в Outlook.
+        Creates a draft email in Outlook.
         
         Args:
-            subject: Тема письма
-            body: Тело письма
-            recipient: Получатель (опционально)
-            html_body: Использовать ли HTML формат для тела письма
+            subject: Email subject
+            body: Email body
+            recipient: Recipient (optional)
+            html_body: Whether to use HTML format for the email body
             
         Returns:
-            EntryID созданного письма или None при ошибке
+            EntryID of the created email or None on error
             
         Raises:
-            RuntimeError: Если клиент не подключен к Outlook
+            RuntimeError: If the client is not connected to Outlook
         """
         if not self._is_connected:
-            raise RuntimeError("Клиент не подключен к Outlook. Вызовите connect() сначала.")
+            raise RuntimeError("Client is not connected to Outlook. Call connect() first.")
         
         try:
             mail_item = self._outlook.CreateItem(0)  # 0 = olMailItem
@@ -92,7 +92,7 @@ class OutlookClient:
             entry_id = mail_item.EntryID
             return entry_id
         except Exception as e:
-            raise RuntimeError(f"Ошибка при создании черновика: {str(e)}")
+            raise RuntimeError(f"Error creating draft: {str(e)}")
     
     def send_email(
         self,
@@ -103,20 +103,20 @@ class OutlookClient:
         html_body: bool = False
     ) -> Optional[str]:
         """
-        Отправляет письмо через Outlook (выглядит как отправленное вручную).
+        Sends an email via Outlook (appears as if sent manually).
         
         Args:
-            subject: Тема письма
-            body: Тело письма
-            recipient: Получатель
-            delay_seconds: Задержка перед отправкой (для имитации ручной отправки)
-            html_body: Использовать ли HTML формат
+            subject: Email subject
+            body: Email body
+            recipient: Recipient
+            delay_seconds: Delay before sending (to simulate manual sending)
+            html_body: Whether to use HTML format
             
         Returns:
-            EntryID отправленного письма или None при ошибке
+            EntryID of the sent email or None on error
         """
         if not self._is_connected:
-            raise RuntimeError("Клиент не подключен к Outlook. Вызовите connect() сначала.")
+            raise RuntimeError("Client is not connected to Outlook. Call connect() first.")
         
         try:
             if delay_seconds > 0:
@@ -133,8 +133,8 @@ class OutlookClient:
             mail_item.To = recipient
             mail_item.Send()
             
-            # Получаем EntryID из папки отправленных
-            time.sleep(0.5)  # Небольшая задержка для сохранения
+            # Get EntryID from the sent items folder
+            time.sleep(0.5)  # Small delay for saving
             entry_id = None
             try:
                 sent_items = self._sent_folder.Items
@@ -147,27 +147,27 @@ class OutlookClient:
             
             return entry_id
         except Exception as e:
-            raise RuntimeError(f"Ошибка при отправке письма: {str(e)}")
+            raise RuntimeError(f"Error sending email: {str(e)}")
     
     def check_replies(self, conversation_id: Optional[str] = None, 
                      since_date: Optional[datetime] = None) -> List[Dict[str, Any]]:
         """
-        Проверяет ответы на письма.
+        Checks for replies to emails.
         
         Args:
-            conversation_id: ID беседы для фильтрации (опционально)
-            since_date: Дата для фильтрации (опционально)
+            conversation_id: Conversation ID for filtering (optional)
+            since_date: Date for filtering (optional)
             
         Returns:
-            Список словарей с информацией об ответах
+            List of dicts with reply information
         """
         if not self._is_connected:
-            raise RuntimeError("Клиент не подключен к Outlook.")
+            raise RuntimeError("Client is not connected to Outlook.")
         
         replies = []
         try:
             items = self._inbox_folder.Items
-            items.Sort("[ReceivedTime]", True)  # Сортировка по дате получения
+            items.Sort("[ReceivedTime]", True)  # Sort by received date
             
             for item in items:
                 if item.Class == 43:  # 43 = olMail
@@ -178,29 +178,29 @@ class OutlookClient:
                         if item.ConversationID != conversation_id:
                             continue
                     
-                    # Проверяем, является ли это ответом
+                    # Check whether this is a reply
                     if hasattr(item, 'PropertyAccessor'):
                         try:
-                            # Получаем информацию о письме
+                            # Get email information
                             reply_info = {
                                 'entry_id': item.EntryID,
                                 'subject': item.Subject,
                                 'sender': item.SenderEmailAddress if hasattr(item, 'SenderEmailAddress') else '',
                                 'received_time': item.ReceivedTime,
                                 'conversation_id': item.ConversationID if hasattr(item, 'ConversationID') else None,
-                                'body': item.Body[:200] if hasattr(item, 'Body') else ''  # Первые 200 символов
+                                'body': item.Body[:200] if hasattr(item, 'Body') else ''  # First 200 characters
                             }
                             replies.append(reply_info)
                         except:
                             continue
         
         except Exception as e:
-            raise RuntimeError(f"Ошибка при проверке ответов: {str(e)}")
+            raise RuntimeError(f"Error checking replies: {str(e)}")
         
         return replies
     
     def disconnect(self):
-        """Отключается от Outlook."""
+        """Disconnects from Outlook."""
         self._outlook = None
         self._namespace = None
         self._drafts_folder = None
