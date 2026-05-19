@@ -1,133 +1,133 @@
-# Gold Outreach - Плагин для MS Outlook
+# Gold Outreach - MS Outlook Plugin
 
-Полнофункциональный плагин для MS Outlook для автоматизации email-рассылок с поддержкой кампаний, отслеживания ответов и конверсий.
+A full-featured MS Outlook plugin for automating email campaigns with support for campaign management, reply tracking, and conversion analytics.
 
-## Архитектура
+## Architecture
 
-Приложение построено на основе **Layered Event-Driven Modular Architecture**:
+The application is built on a **Layered Event-Driven Modular Architecture**:
 
-- **Presentation Layer** (`src/presentation/`) - GUI компоненты на tkinter
-- **Application Layer** (`src/application/`) - бизнес-логика, use cases, event bus, система плагинов
-- **Domain Layer** (`src/domain/`) - доменные модели и события
-- **Infrastructure Layer** (`src/infrastructure/`) - реализации для работы с YAML, CSV, TOML и Outlook
+- **Presentation Layer** (`src/presentation/`) - GUI components built with tkinter
+- **Application Layer** (`src/application/`) - business logic, use cases, event bus, plugin system
+- **Domain Layer** (`src/domain/`) - domain models and events
+- **Infrastructure Layer** (`src/infrastructure/`) - implementations for working with YAML, CSV, TOML, and Outlook
 
-## Возможности
+## Features
 
-### Основной функционал
+### Core Functionality
 
-- ✅ Загрузка переменных из YAML или CSV файлов
-- ✅ Загрузка шаблонов писем из YAML или TOML файлов
-- ✅ Автоматическая подстановка переменных в шаблоны (формат: `{{variable_name}}`)
-- ✅ Создание кампаний рассылок
-- ✅ Массовая отправка писем через Outlook (имитация ручной отправки)
-- ✅ Отслеживание ответов на письма
-- ✅ Расчет конверсий по кампаниям
-- ✅ GUI интерфейс на tkinter с диалоговыми окнами
-- ✅ Event-driven архитектура для отслеживания операций
-- ✅ Модульная система плагинов
+- ✅ Load variables from YAML or CSV files
+- ✅ Load email templates from YAML or TOML files
+- ✅ Automatic variable substitution in templates (format: `{{variable_name}}`)
+- ✅ Create mailing campaigns
+- ✅ Bulk email sending via Outlook (simulating manual sending)
+- ✅ Reply tracking for sent emails
+- ✅ Conversion rate calculation per campaign
+- ✅ GUI interface built with tkinter and dialog windows
+- ✅ Event-driven architecture for operation tracking
+- ✅ Modular plugin system
 
-### Плагин для Outlook
+### Outlook Plugin
 
-- ✅ Интеграция с MS Outlook через Ribbon панель
-- ✅ Минимальное использование VBA (только для вызова Python)
-- ✅ Отдельная вкладка "Gold Outreach" в панели управления Outlook
+- ✅ Integration with MS Outlook via the Ribbon panel
+- ✅ Minimal VBA usage (only for invoking Python)
+- ✅ Dedicated "Gold Outreach" tab in the Outlook management panel
 
-## Требования
+## Requirements
 
 - Python 3.8+
-- Windows (для работы с MS Outlook)
-- MS Outlook установлен и настроен
-- pywin32 для работы с COM интерфейсом Outlook
+- Windows (required for MS Outlook)
+- MS Outlook installed and configured
+- pywin32 for working with the Outlook COM interface
 
-## Установка
+## Installation
 
-1. Установите зависимости:
+1. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-**Важно:** На Windows также необходимо установить pywin32 для работы с Outlook COM интерфейсом.
+**Note:** On Windows, you must also install pywin32 to work with the Outlook COM interface.
 
-2. Для установки плагина в Outlook:
+2. To install the plugin into Outlook:
 
-   - Скопируйте файлы из `outlook_addin/` в папку с макросами Outlook
-   - Настройте путь к Python скрипту в `RibbonHandler.bas` (константа `PYTHON_SCRIPT_PATH`)
-   - Включите макросы в Outlook (Файл → Параметры → Центр управления безопасностью → Параметры центра управления безопасностью → Макросы)
+   - Copy the files from `outlook_addin/` into the Outlook macros folder
+   - Set the path to the Python script in `RibbonHandler.bas` (constant `PYTHON_SCRIPT_PATH`)
+   - Enable macros in Outlook (File → Options → Trust Center → Trust Center Settings → Macros)
 
-## Использование
+## Usage
 
-### Запуск как отдельное приложение
+### Running as a Standalone Application
 
 ```bash
 python main.py
 ```
 
-### Использование как плагин Outlook
+### Using as an Outlook Plugin
 
-1. Откройте Outlook
-2. Перейдите на вкладку "Gold Outreach" в Ribbon панели
-3. Используйте кнопки для управления кампаниями
+1. Open Outlook
+2. Navigate to the "Gold Outreach" tab in the Ribbon panel
+3. Use the buttons to manage campaigns
 
-### Создание кампании
+### Creating a Campaign
 
-1. Подготовьте CSV файл с получателями (см. пример в `config/example_recipients.csv`)
-2. Подготовьте шаблон письма в YAML или TOML (см. примеры в `config/`)
-3. В приложении:
-   - Нажмите "Создать кампанию"
-   - Выберите шаблон
-   - Выберите CSV файл с получателями
-   - Нажмите "Создать"
+1. Prepare a CSV file with recipients (see example in `config/example_recipients.csv`)
+2. Prepare an email template in YAML or TOML (see examples in `config/`)
+3. In the application:
+   - Click "Create campaign"
+   - Select a template
+   - Select the CSV file with recipients
+   - Click "Create"
 
-### Запуск кампании
+### Starting a Campaign
 
-1. Откройте "Управление кампаниями"
-2. Выберите кампанию
-3. Нажмите "Запустить"
-4. Письма будут отправлены с задержкой между отправками (имитация ручной отправки)
+1. Open "Campaign Management"
+2. Select a campaign
+3. Click "Start"
+4. Emails will be sent with a delay between each one (simulating manual sending)
 
-### Отслеживание ответов
+### Tracking Replies
 
-1. В "Управлении кампаниями" выберите кампанию
-2. Нажмите "Проверить ответы"
-3. Система автоматически найдет ответы и обновит статистику
+1. In "Campaign Management", select a campaign
+2. Click "Check replies"
+3. The system will automatically find replies and update the statistics
 
-## Формат файлов
+## File Formats
 
-### CSV файл с получателями
+### CSV File with Recipients
 
 ```csv
 email,name,company,position
-ivan@example.com,Иван Иванов,ООО Пример,Директор
-petr@example.com,Петр Петров,ООО Другой,Менеджер
+ivan@example.com,Ivan Ivanov,Example LLC,Director
+petr@example.com,Petr Petrov,Other LLC,Manager
 ```
 
-Каждая строка представляет одного получателя. Колонки могут быть любыми - они станут переменными для подстановки в шаблон.
+Each row represents one recipient. Columns can be anything — they become variables for substitution in the template.
 
-### Файл переменных (variables.yaml)
+### Variables File (variables.yaml)
 
 ```yaml
-company_name: "ООО Пример"
-contact_person: "Иван Иванов"
+company_name: "Example LLC"
+contact_person: "Ivan Ivanov"
 email: "ivan@example.com"
 ```
 
-### Файл шаблонов (templates.yaml или templates.toml)
+### Templates File (templates.yaml or templates.toml)
 
 ```yaml
 template_name:
-  subject: "Тема письма с {{variable_name}}"
+  subject: "Email subject with {{variable_name}}"
   body: |
-    Тело письма
-    Можно использовать {{variable_name}} для подстановки
-  recipient: "{{email}}"  # опционально, можно указать в CSV
+    Email body
+    You can use {{variable_name}} for substitution
+  recipient: "{{email}}"  # optional, can also be specified in CSV
 ```
 
-Переменные в шаблонах указываются в формате `{{variable_name}}` и будут автоматически заменены на значения из CSV или YAML.
+Variables in templates use the format `{{variable_name}}` and are automatically replaced with values from CSV or YAML.
 
-## Система плагинов
+## Plugin System
 
-Приложение поддерживает модульную систему плагинов. Создайте файл в папке `plugins/`, наследующийся от класса `Plugin`:
+The application supports a modular plugin system. Create a file in the `plugins/` folder that inherits from the `Plugin` class:
 
 ```python
 from src.application.plugin_system import Plugin
@@ -135,86 +135,86 @@ from src.domain.events import Event
 
 class MyPlugin(Plugin):
     def initialize(self):
-        # Инициализация плагина
+        # Plugin initialization
         pass
     
     def handle_event(self, event: Event):
-        # Обработка событий
+        # Handle events
         if event.event_type == "email_sent":
-            # Ваша логика
+            # Your logic here
             pass
 ```
 
-Плагины автоматически загружаются при запуске приложения.
+Plugins are automatically loaded at application startup.
 
-## Структура проекта
+## Project Structure
 
 ```
 gold-outreach/
 ├── src/
-│   ├── domain/              # Доменный слой
-│   │   ├── events.py       # События
-│   │   └── models.py       # Доменные модели (Email, Campaign, etc.)
-│   ├── application/        # Слой приложения
+│   ├── domain/              # Domain layer
+│   │   ├── events.py       # Events
+│   │   └── models.py       # Domain models (Email, Campaign, etc.)
+│   ├── application/        # Application layer
 │   │   ├── event_bus.py    # Event bus
-│   │   ├── email_service.py    # Сервис для работы с письмами
-│   │   ├── campaign_service.py # Сервис для управления кампаниями
-│   │   └── plugin_system.py    # Система плагинов
-│   ├── infrastructure/     # Инфраструктурный слой
-│   │   ├── yaml_loader.py      # Загрузка YAML
-│   │   ├── csv_loader.py       # Загрузка CSV
-│   │   ├── toml_loader.py      # Загрузка TOML
-│   │   └── outlook_client.py   # Клиент Outlook
-│   └── presentation/       # Слой представления
-│       ├── main_window.py      # Главное окно
-│       ├── campaign_dialog.py  # Диалог кампаний
-│       └── log_dialog.py       # Диалог логов
-├── outlook_addin/          # Файлы плагина Outlook
+│   │   ├── email_service.py    # Service for working with emails
+│   │   ├── campaign_service.py # Service for managing campaigns
+│   │   └── plugin_system.py    # Plugin system
+│   ├── infrastructure/     # Infrastructure layer
+│   │   ├── yaml_loader.py      # YAML loader
+│   │   ├── csv_loader.py       # CSV loader
+│   │   ├── toml_loader.py      # TOML loader
+│   │   └── outlook_client.py   # Outlook client
+│   └── presentation/       # Presentation layer
+│       ├── main_window.py      # Main window
+│       ├── campaign_dialog.py  # Campaign dialog
+│       └── log_dialog.py       # Log dialog
+├── outlook_addin/          # Outlook plugin files
 │   ├── customUI.xml        # Ribbon XML
-│   ├── RibbonHandler.bas   # VBA обработчики
-│   └── ThisAddIn.cls       # VBA класс
-├── plugins/                # Плагины
-│   └── example_plugin.py   # Пример плагина
-├── config/                 # Примеры конфигурационных файлов
-├── outlook_launcher.py     # Лаунчер для Outlook плагина
-├── main.py                 # Точка входа
-├── requirements.txt        # Зависимости
-└── README.md              # Документация
+│   ├── RibbonHandler.bas   # VBA handlers
+│   └── ThisAddIn.cls       # VBA class
+├── plugins/                # Plugins
+│   └── example_plugin.py   # Example plugin
+├── config/                 # Example configuration files
+├── outlook_launcher.py     # Launcher for the Outlook plugin
+├── main.py                 # Entry point
+├── requirements.txt        # Dependencies
+└── README.md              # Documentation
 ```
 
 ## Event-Driven Architecture
 
-Приложение использует event-driven подход:
+The application uses an event-driven approach:
 
-- **EventBus** - централизованная шина событий
-- **События**:
-  - `VariablesLoadedEvent` - загрузка переменных
-  - `TemplatesLoadedEvent` - загрузка шаблонов
-  - `CampaignCreatedEvent` - создание кампании
-  - `CampaignStartedEvent` - запуск кампании
-  - `EmailSentEvent` - отправка письма
-  - `EmailRepliedEvent` - ответ на письмо
-  - `CampaignCompletedEvent` - завершение кампании
-  - `ErrorEvent` - ошибки
+- **EventBus** - centralized event bus
+- **Events**:
+  - `VariablesLoadedEvent` - variables loaded
+  - `TemplatesLoadedEvent` - templates loaded
+  - `CampaignCreatedEvent` - campaign created
+  - `CampaignStartedEvent` - campaign started
+  - `EmailSentEvent` - email sent
+  - `EmailRepliedEvent` - reply received on email
+  - `CampaignCompletedEvent` - campaign completed
+  - `ErrorEvent` - errors
 
-Все события публикуются через EventBus и обрабатываются подписанными обработчиками (GUI, плагины).
+All events are published through the EventBus and handled by subscribed handlers (GUI, plugins).
 
-## Метрики и конверсии
+## Metrics and Conversions
 
-Система автоматически отслеживает:
-- Количество отправленных писем
-- Количество полученных ответов
-- Конверсию по кампаниям (процент ответов)
-- Процент выполнения кампании
+The system automatically tracks:
+- Number of sent emails
+- Number of received replies
+- Conversion rate per campaign (percentage of replies)
+- Campaign completion percentage
 
-## Примечания
+## Notes
 
-- Приложение работает только на Windows из-за зависимости от MS Outlook
-- Убедитесь, что Outlook установлен и настроен перед использованием
-- Письма отправляются с задержкой для имитации ручной отправки
-- Система отслеживает только ответы (не открытия писем)
-- Письма выглядят как отправленные вручную сейлзом
+- The application runs only on Windows due to its dependency on MS Outlook
+- Ensure Outlook is installed and configured before use
+- Emails are sent with delays to simulate manual sending by a salesperson
+- The system tracks only replies (not email opens)
+- Emails appear as if sent manually by a salesperson
 
-## Лицензия
+## License
 
 MIT
