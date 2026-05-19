@@ -1,4 +1,4 @@
-"""События для event-driven архитектуры."""
+"""Events for event-driven architecture."""
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 from datetime import datetime
@@ -6,7 +6,7 @@ from datetime import datetime
 
 @dataclass
 class Event:
-    """Базовый класс для всех событий."""
+    """Base class for all events."""
     timestamp: datetime
     event_type: str
     
@@ -17,7 +17,7 @@ class Event:
 
 @dataclass
 class VariablesLoadedEvent(Event):
-    """Событие загрузки переменных из YAML."""
+    """Event fired when variables are loaded from YAML."""
     variables: Dict[str, Any]
     
     def __init__(self, variables: Dict[str, Any]):
@@ -27,7 +27,7 @@ class VariablesLoadedEvent(Event):
 
 @dataclass
 class TemplatesLoadedEvent(Event):
-    """Событие загрузки шаблонов из YAML."""
+    """Event fired when templates are loaded from YAML."""
     templates: Dict[str, str]
     
     def __init__(self, templates: Dict[str, str]):
@@ -37,7 +37,7 @@ class TemplatesLoadedEvent(Event):
 
 @dataclass
 class EmailGeneratedEvent(Event):
-    """Событие генерации письма."""
+    """Event fired when an email is generated."""
     template_name: str
     subject: str
     body: str
@@ -53,7 +53,7 @@ class EmailGeneratedEvent(Event):
 
 @dataclass
 class EmailSavedEvent(Event):
-    """Событие сохранения письма в Outlook."""
+    """Event fired when an email is saved to Outlook."""
     template_name: str
     success: bool
     error_message: Optional[str] = None
@@ -67,7 +67,7 @@ class EmailSavedEvent(Event):
 
 @dataclass
 class ErrorEvent(Event):
-    """Событие ошибки."""
+    """Error event."""
     error_message: str
     error_type: str
     
@@ -79,7 +79,7 @@ class ErrorEvent(Event):
 
 @dataclass
 class CampaignCreatedEvent(Event):
-    """Событие создания кампании."""
+    """Event fired when a campaign is created."""
     campaign_id: str
     campaign_name: str
     
@@ -91,7 +91,7 @@ class CampaignCreatedEvent(Event):
 
 @dataclass
 class CampaignStartedEvent(Event):
-    """Событие запуска кампании."""
+    """Event fired when a campaign is started."""
     campaign_id: str
     
     def __init__(self, campaign_id: str):
@@ -101,7 +101,7 @@ class CampaignStartedEvent(Event):
 
 @dataclass
 class EmailSentEvent(Event):
-    """Событие отправки письма."""
+    """Event fired when an email is sent."""
     email_id: str
     campaign_id: str
     recipient: str
@@ -115,7 +115,7 @@ class EmailSentEvent(Event):
 
 @dataclass
 class EmailRepliedEvent(Event):
-    """Событие ответа на письмо."""
+    """Event fired when a reply is received to an email."""
     email_id: str
     campaign_id: str
     recipient: str
@@ -129,7 +129,7 @@ class EmailRepliedEvent(Event):
 
 @dataclass
 class CampaignCompletedEvent(Event):
-    """Событие завершения кампании."""
+    """Event fired when a campaign is completed."""
     campaign_id: str
     total_emails: int
     sent_emails: int
